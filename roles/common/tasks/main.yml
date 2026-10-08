@@ -1,0 +1,71 @@
+---
+- name: Check the site is set
+  ansible.builtin.assert:
+    that:
+      - optical_site_lat is defined
+      - optical_site_lon is defined
+      - not (optical_site_lat | float == 0.0 and optical_site_lon | float == 0.0)
+    fail_msg: >-
+      Set optical_site_lat and optical_site_lon to the station's position.
+      The client refuses to capture at 0,0.
+    quiet: true
+
+- name: Service group
+  ansible.builtin.group:
+    name: "{{ optical_user }}"
+    gid: "{{ optical_gid }}"
+    system: true
+
+- name: Service user
+  ansible.builtin.user:
+    name: "{{ optical_user }}"
+    uid: "{{ optical_uid }}"
+    group: "{{ optical_user }}"
+    system: true
+    shell: /usr/sbin/nologin
+    home: "{{ optical_state_dir }}"
+    create_home: false
+
+- name: Configuration directory
+  ansible.builtin.file:
+    path: "{{ optical_config_dir }}"
+    state: directory
+    owner: root
+    group: "{{ optical_user }}"
+    mode: "0770"
+
+- name: State directory
+  ansible.builtin.file:
+    path: "{{ optical_state_dir }}"
+    state: directory
+    owner: "{{ optical_user }}"
+    group: "{{ optical_user }}"
+    mode: "0750"
+
+- name: Runtime directory, recreated at every boot
+  ansible.builtin.copy:
+    dest: /etc/tmpfiles.d/satnogs-optical.conf
+    content: |
+      d {{ optical_run_dir }} 0755 {{ optical_user }} {{ optical_user }} -
+    mode: "0644"
+  register: optical_tmpfiles
+
+# Now rather than in a handler: the host roles start units that need it.
+- name: Create runtime directory
+  ansible.builtin.command: systemd-tmpfiles --create /etc/tmpfiles.d/satnogs-optical.conf
+  when: optical_tmpfiles.changed
+  changed_when: true
+
+- name: Library directory
+  ansible.builtin.file:
+    path: "{{ optical_lib_dir }}"
+    state: directory
+    mode: "0755"
+
+- name: Sync script
+  ansible.builtin.copy:
+    src: optical_sync.py
+    dest: "{{ optical_lib_dir }}/optical_sync.py"
+    mode: "0755"
+  # The host roles restart whichever sync services they run.
+  notify: optical sync script changed

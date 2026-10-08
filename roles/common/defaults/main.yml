@@ -1,0 +1,54 @@
+---
+# Variables shared by every role in this collection. The other roles depend
+# on this one, so these are visible to them too.
+
+# -- station ------------------------------------------------------------------
+
+# The id the network assigned when the station was claimed. 0 means not yet
+# claimed. The acquisition host refuses to start optical-acquire with 0; the
+# processing host runs the claim page until a claim lands.
+optical_station_id: 0
+optical_station_name: unnamed
+
+# Site position (WGS84). Required: darkness is computed from it, and the
+# client refuses to capture at 0,0.
+# optical_site_lat: 52.0
+# optical_site_lon: 5.0
+optical_site_height_m: 0.0
+
+# -- software -----------------------------------------------------------------
+
+optical_client_repo: https://gitlab.com/librespacefoundation/satnogs-optical/satnogs-optical-client.git
+# A commit (or tag) of the client. Both hosts run the same one.
+optical_client_ref: d057e8047f5ddd7f602ee26f8c78f7cd4aef2a29
+
+# The planning repository carries the client<->network contract library
+# (satnogs-optical-schema) in its schemas/ directory.
+optical_schema_repo: https://gitlab.com/librespacefoundation/satnogs-optical/satnogs-optical.git
+optical_schema_ref: f644f1e44e8f1d12da4c82c5f4f2e17c9adf200e
+
+optical_network_url: https://optical.satnogs.org
+
+# -- service user -------------------------------------------------------------
+
+# Must be the same on both hosts: the Pi writes FITS to the NAS as this uid,
+# the processing host reads and deletes them as this uid.
+optical_user: satnogs-optical
+optical_uid: 1990
+optical_gid: 1990
+
+# -- paths --------------------------------------------------------------------
+
+optical_config_dir: /etc/satnogs-optical
+optical_state_dir: /var/lib/satnogs-optical
+optical_run_dir: /run/satnogs-optical
+optical_lib_dir: /usr/local/lib/satnogs-optical
+optical_db: "{{ optical_state_dir }}/station.sqlite3"
+
+# Where the NAS is mounted. Same path on both hosts, so the paths stored with
+# each stack mean the same thing on both.
+optical_nas_mountpoint: /srv/satnogs-optical
+optical_raw_dir: "{{ optical_nas_mountpoint }}/raw"
+optical_exchange_dir: "{{ optical_nas_mountpoint }}/exchange"
+optical_outbox_dir: "{{ optical_exchange_dir }}/outbox"
+optical_config_export: "{{ optical_exchange_dir }}/config.json"

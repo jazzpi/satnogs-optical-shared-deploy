@@ -206,7 +206,7 @@ backup.yml                 import_playbook: gos.satnogs_optical.backup_secrets
       agent, web or process running; creates its own store)
 - [x] `optical_sync.py` and its tests (`PYTHONPATH=../client pytest tests`)
 - [x] Collection skeleton (`galaxy.yml`, `meta/runtime.yml`, README, LICENSE)
-- [ ] `common` role
+- [x] `common` role
 - [ ] `nas_mount` role
 - [ ] `acquire` role
 - [ ] `processing` role
