@@ -213,7 +213,7 @@ backup.yml                 import_playbook: gos.satnogs_optical.backup_secrets
 - [x] Processing image builds (Docker) and runs end to end: synthetic acquire ->
       publish -> ingest -> `optical-process` consumed the ingested stacks;
       cedar solver constructed, agent selftest OK
-- [ ] Playbooks (`site.yml`, `backup_secrets.yml`)
+- [x] Playbooks (`site.yml`, `backup_secrets.yml`)
 - [ ] `examples/`
 - [x] `git init` + remote + identity for `shared-deploy`
 - [ ] Private repo skeleton, `git init` + remote + identity

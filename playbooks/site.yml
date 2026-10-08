@@ -1,0 +1,14 @@
+---
+# Processing first: the station is claimed there, and the acquisition host
+# needs the claimed station id.
+- name: Processing host
+  hosts: optical_processing
+  become: true
+  roles:
+    - gos.satnogs_optical.processing
+
+- name: Acquisition host
+  hosts: optical_acquisition
+  become: true
+  roles:
+    - gos.satnogs_optical.acquire
