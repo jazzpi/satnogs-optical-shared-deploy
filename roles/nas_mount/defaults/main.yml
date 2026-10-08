@@ -1,0 +1,12 @@
+---
+# The NAS export, e.g. "nas.lan:/volume1/satnogs-optical" for NFS or
+# "//nas.lan/satnogs-optical" for SMB. Required.
+# optical_nas_src: nas.lan:/volume1/satnogs-optical
+
+# nfs or cifs.
+optical_nas_fstype: nfs
+
+# Mount options. For cifs, add credentials= and uid=/gid= of the service user.
+# nofail lets the host boot without the NAS; the units that need it carry
+# RequiresMountsFor= and wait for it.
+optical_nas_opts: defaults,_netdev,nofail

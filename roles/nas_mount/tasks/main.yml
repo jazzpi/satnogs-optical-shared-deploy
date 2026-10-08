@@ -1,0 +1,35 @@
+---
+- name: Check the NAS export is set
+  ansible.builtin.assert:
+    that: optical_nas_src is defined
+    fail_msg: Set optical_nas_src to the NAS export both hosts mount.
+    quiet: true
+
+- name: Filesystem client
+  ansible.builtin.apt:
+    name:
+      - "{{ 'cifs-utils' if optical_nas_fstype == 'cifs' else 'nfs-common' }}"
+      # Lets Ansible become the unprivileged service user below.
+      - acl
+
+- name: Mount the NAS
+  ansible.posix.mount:
+    path: "{{ optical_nas_mountpoint }}"
+    src: "{{ optical_nas_src }}"
+    fstype: "{{ optical_nas_fstype }}"
+    opts: "{{ optical_nas_opts }}"
+    state: mounted
+
+# As the service user, not root: an NFS export with root_squash would refuse
+# root, and the files must belong to the service uid anyway.
+- name: Directories on the NAS
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - "{{ optical_raw_dir }}"
+    - "{{ optical_exchange_dir }}"
+    - "{{ optical_outbox_dir }}"
+  become: true
+  become_user: "{{ optical_user }}"
