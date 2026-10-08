@@ -1,13 +1,10 @@
 ---
 - name: Check the acquisition host's settings
   ansible.builtin.assert:
-    that:
-      - optical_station_id | int > 0
-      - optical_ntp_servers is defined
-      - optical_ntp_servers | length > 0
+    that: optical_station_id | int > 0
     fail_msg: >-
       Set optical_station_id (claim the station on the processing host first;
-      optical-acquire refuses id 0) and optical_ntp_servers.
+      optical-acquire refuses id 0).
     quiet: true
 
 - name: Packages
@@ -28,6 +25,7 @@
     src: chrony.conf.j2
     dest: /etc/chrony/chrony.conf
     mode: "0644"
+  when: optical_ntp_servers | length > 0
   notify: Restart chrony
 
 - name: Virtualenv

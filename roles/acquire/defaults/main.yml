@@ -1,7 +1,9 @@
 ---
-# NTP servers chrony uses. Required: optical-acquire will not capture until
-# chrony reports a validated clock.
-# optical_ntp_servers: [ntp.lan]
+# NTP servers for chrony, replacing the distribution's chrony.conf. Empty
+# leaves the existing configuration alone; optical-acquire only needs chrony
+# to report a validated clock. Emptying it again later does not restore the
+# distribution's file.
+optical_ntp_servers: []
 
 optical_venv: /opt/satnogs-optical/venv
 

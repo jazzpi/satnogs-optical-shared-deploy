@@ -33,8 +33,9 @@ Pi store <--optical-config-pull--  exchange/config.json <------  VM store (web U
   Quadlet; Debian 12 ships 4.3).
 - A NAS export (NFS or SMB) both hosts can mount, writable by the service
   user's uid (same uid on both hosts, default 1990).
-- An NTP server both hosts can reach. The Pi will not capture until chrony
-  reports a validated clock.
+- chrony on the Pi with working time sources: the distribution's default
+  servers, or your own via `optical_ntp_servers`. The Pi will not capture
+  until chrony reports a validated clock.
 
 ## Usage
 

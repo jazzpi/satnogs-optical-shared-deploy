@@ -12,8 +12,9 @@ optical_site_height_m: 10.0
 optical_nas_src: nas.example.lan:/volume1/satnogs-optical
 optical_nas_fstype: nfs
 
-optical_ntp_servers:
-  - ntp.example.lan
+# Only for a local NTP server; without it the Pi keeps its own chrony setup.
+# optical_ntp_servers:
+#   - ntp.example.lan
 
 # Vault-encrypted copies of the station identity, written by
 # backup_secrets.yml and restored on a rebuilt processing host.

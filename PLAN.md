@@ -27,7 +27,7 @@ Two repos:
 | Pi OS | Ubuntu (not Raspberry Pi OS) | Already used for stvid with picamera2 on a Pi 5 |
 | FITS | Written directly to the NAS, never to the SD card | SD wear: ~3.3 GB/hour of stacks |
 | Pi store | The Pi's own SQLite store stays on the SD card | Writes are tiny (rows only); a reboot loses nothing |
-| Clock | chrony against the local NTP server | Acquire validates the clock itself every cycle; there is no supported way to skip it for a real camera |
+| Clock | chrony with the distribution's servers, optionally a local NTP server | Acquire validates the clock itself every cycle; there is no supported way to skip it for a real camera |
 | Database | SQLite on each host, no shared DB, no Postgres | SQLite WAL is unsafe on network filesystems; Postgres would mean forking the client's store layer |
 | Frame path | `files` (the client's default); not pinned | The shared-memory ring only works with processing on the same host. Setting it to `ring` in the web UI stops FITS arriving, which is visible and revertible |
 | Config from the web UI | Passed to the Pi unfiltered, including `acquire.source` and `acquire.frame_path` | A bad setting shows up as no FITS arriving and is reverted in the UI; filtering would add complexity for little gain |
@@ -116,7 +116,7 @@ shared-deploy/
     common/                service user (fixed uid/gid), optical_sync.py
     nas_mount/             NFS/SMB mount, raw/ and exchange/ directories
     acquire/               Pi: apt packages, venv (--system-site-packages) with the client
-                           at a pinned commit, chrony, station.toml, units:
+                           at a pinned commit, chrony (config optional), station.toml, units:
                            optical-acquire, optical-sync-publish, optical-config-pull,
                            optical-acquire-restart.{path,service}
     processing/            VM: podman, image build (Containerfile), Hipparcos catalogue,
