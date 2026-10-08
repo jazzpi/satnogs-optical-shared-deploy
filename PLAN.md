@@ -204,7 +204,7 @@ backup.yml                 import_playbook: gos.satnogs_optical.backup_secrets
 
 - [x] `optical-acquire` verified to run standalone (synthetic source: no gate,
       agent, web or process running; creates its own store)
-- [~] `optical_sync.py` written; tests not yet written
+- [x] `optical_sync.py` and its tests (`PYTHONPATH=../client pytest tests`)
 - [ ] Collection skeleton, roles, playbooks
 - [ ] Private repo skeleton
 - [ ] `git init` + remotes + identities for both repos
