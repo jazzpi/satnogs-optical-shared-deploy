@@ -1,0 +1,25 @@
+---
+# Set after the station is claimed on the processing host's claim page
+# (http://<processing host>:8080/). Until then leave it at 0 and deploy only
+# the processing host.
+optical_station_id: 0
+optical_station_name: my-station
+
+optical_site_lat: 52.0
+optical_site_lon: 5.0
+optical_site_height_m: 10.0
+
+optical_nas_src: nas.example.lan:/volume1/satnogs-optical
+optical_nas_fstype: nfs
+
+optical_ntp_servers:
+  - ntp.example.lan
+
+# Vault-encrypted copies of the station identity, written by
+# backup_secrets.yml and restored on a rebuilt processing host.
+optical_secrets_dir: "{{ inventory_dir }}/secrets"
+
+# Keep raw stacks on the NAS for three days instead of one.
+# optical_processing_toml_extra:
+#   retention:
+#     raw_hours: 72

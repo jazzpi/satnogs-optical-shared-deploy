@@ -37,29 +37,66 @@ Pi store <--optical-config-pull--  exchange/config.json <------  VM store (web U
 
 ## Usage
 
-Keep your inventory, variables and secrets in a private repository and
-install this collection there:
-
-```yaml
-# requirements.yml
-collections:
-  - name: https://github.com/jazzpi/satnogs-optical-shared-deploy.git
-    type: git
-    version: main
-```
-
-```yaml
-# site.yml
-- ansible.builtin.import_playbook: gos.satnogs_optical.site
-```
-
-`examples/` has an inventory and variables to start from. Every variable is
+Keep your inventory, variables and secrets in a private repository that
+installs this collection. `examples/` is a complete starting point: copy it,
+then fill in `inventory.yml` and `group_vars/all/main.yml`. Every variable is
 documented in the `defaults/main.yml` of the role that uses it.
 
-```bash
-ansible-galaxy collection install -r requirements.yml
-ansible-playbook site.yml --ask-vault-pass
-```
+The two inventory groups are `optical_processing` and `optical_acquisition`.
+
+### First deployment
+
+1. Create the NAS export, writable by uid/gid 1990 (`optical_uid`).
+2. Install the collection and deploy the processing host:
+
+   ```bash
+   ansible-galaxy collection install -r requirements.yml
+   ansible-playbook site.yml --limit optical_processing
+   ```
+
+3. Claim the station on the claim page at `http://<processing host>:8080/`.
+   The web UI replaces it on the same port once the claim lands.
+4. Set `optical_station_id` to the id the claim assigned, and back up the
+   identity it created:
+
+   ```bash
+   ansible-playbook backup.yml
+   git add secrets && git commit
+   ```
+
+5. Deploy the acquisition host:
+
+   ```bash
+   ansible-playbook site.yml --limit optical_acquisition
+   ```
+
+6. In the web UI, set the lens focal length and the camera's pixel size.
+   Without them the plate solver does not know the field of view.
+
+### Restoring
+
+Run `site.yml` against the rebuilt host. On the processing host the
+identity, token and admin token come back from `secrets/` (only where the
+host has none). The processing host's database holds the measurements and
+the upload cursor; it is not in git, so back it up separately.
+
+### What runs where
+
+| Host | Unit | Does |
+|---|---|---|
+| acquisition | `optical-acquire` | camera -> FITS on the NAS, rows in the local store |
+| acquisition | `optical-sync-publish` | new rows -> `exchange/outbox/` |
+| acquisition | `optical-config-pull` | `exchange/config.json` -> local store, restarts acquisition |
+| processing | `optical-process` | detect, plate-solve, link, identify |
+| processing | `optical-agent` | elements, telemetry, tasks, config and uploads to the network |
+| processing | `optical-web` / `optical-setup` | web UI on `optical_web_port`, or the claim page until claimed |
+| processing | `optical-sync-ingest` | `exchange/outbox/` -> local store |
+| processing | `optical-config-export` | local store -> `exchange/config.json` |
+| processing | `optical-retention.timer` | hourly sweep of old FITS on the NAS |
+
+Not deployed: the clock gate (acquisition checks the clock itself), the
+watchdog and power units (they manage a single-host station), and the
+focus-mode live view, which cannot work across hosts.
 
 ## Development
 

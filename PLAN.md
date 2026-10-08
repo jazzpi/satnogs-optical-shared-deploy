@@ -214,7 +214,7 @@ backup.yml                 import_playbook: gos.satnogs_optical.backup_secrets
       publish -> ingest -> `optical-process` consumed the ingested stacks;
       cedar solver constructed, agent selftest OK
 - [x] Playbooks (`site.yml`, `backup_secrets.yml`)
-- [ ] `examples/`
+- [x] `examples/`
 - [x] `git init` + remote + identity for `shared-deploy`
 - [ ] Private repo skeleton, `git init` + remote + identity
 - [ ] Lint (`ansible-lint`, `--syntax-check`)

@@ -1,0 +1,11 @@
+---
+all:
+  children:
+    optical_acquisition:
+      hosts:
+        optical-pi:
+          ansible_host: 192.0.2.10
+    optical_processing:
+      hosts:
+        optical-vm:
+          ansible_host: 192.0.2.20
