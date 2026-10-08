@@ -1,2 +1,3 @@
 ---
-- ansible.builtin.import_playbook: gos.satnogs_optical.site
+- name: Deploy SatNOGS Optical
+  ansible.builtin.import_playbook: gos.satnogs_optical.site

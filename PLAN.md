@@ -217,7 +217,8 @@ backup.yml                 import_playbook: gos.satnogs_optical.backup_secrets
 - [x] `examples/`
 - [x] `git init` + remote + identity for `shared-deploy`
 - [ ] Private repo skeleton, `git init` + remote + identity
-- [ ] Lint (`ansible-lint`, `--syntax-check`)
+- [x] Lint (`ansible-lint` production profile, `--syntax-check`) and every
+      template rendered with the example variables
 
 ## Unverified / open
 

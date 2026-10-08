@@ -30,7 +30,7 @@
     - optical_station_toml_guard_claim | default(false)
     - optical_current_toml.content is defined
 
-- name: station.toml
+- name: Render station.toml
   ansible.builtin.template:
     src: station.toml.j2
     dest: "{{ optical_config_dir }}/station.toml"

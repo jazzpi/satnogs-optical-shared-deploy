@@ -29,7 +29,8 @@ Pi store <--optical-config-pull--  exchange/config.json <------  VM store (web U
 - Acquisition host: Raspberry Pi with Ubuntu, a camera supported by the
   client's `libcamera` driver (e.g. the Raspberry Pi HQ camera), enabled in
   the host's boot config.
-- Processing host: Ubuntu/Debian with Podman ≥ 4.4 (Quadlet).
+- Processing host: x86_64 Ubuntu 24.04+ or Debian 13+ (Podman ≥ 4.4 for
+  Quadlet; Debian 12 ships 4.3).
 - A NAS export (NFS or SMB) both hosts can mount, writable by the service
   user's uid (same uid on both hosts, default 1990).
 - An NTP server both hosts can reach. The Pi will not capture until chrony

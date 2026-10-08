@@ -1,2 +1,3 @@
 ---
-- ansible.builtin.import_playbook: gos.satnogs_optical.backup_secrets
+- name: Back up station secrets
+  ansible.builtin.import_playbook: gos.satnogs_optical.backup_secrets

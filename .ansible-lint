@@ -1,0 +1,7 @@
+---
+skip_list:
+  # Every variable in this collection shares the optical_ prefix on purpose:
+  # the roles are configured together from one set of group_vars.
+  - var-naming[no-role-prefix]
+exclude_paths:
+  - tests/

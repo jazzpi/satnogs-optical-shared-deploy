@@ -9,7 +9,7 @@ description: >-
   Pi with the camera) and a processing host (containers on a VM), sharing a NAS.
 license:
   - AGPL-3.0-or-later
-tags: [satnogs, astronomy, raspberrypi, podman]
+tags: [tools, linux, satnogs, astronomy, raspberrypi, podman]
 dependencies:
   ansible.posix: ">=1.5.0"
 repository: https://github.com/jazzpi/satnogs-optical-shared-deploy

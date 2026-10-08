@@ -51,7 +51,7 @@
   register: optical_tmpfiles
 
 # Now rather than in a handler: the host roles start units that need it.
-- name: Create runtime directory
+- name: Create runtime directory  # noqa: no-handler
   ansible.builtin.command: systemd-tmpfiles --create /etc/tmpfiles.d/satnogs-optical.conf
   when: optical_tmpfiles.changed
   changed_when: true

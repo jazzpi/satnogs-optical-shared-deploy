@@ -100,7 +100,7 @@
     force: false
 
 # Line by line: the claim adds SATNOGS_OPTICAL_TOKEN to this file.
-- name: station.env
+- name: Set station.env keys
   ansible.builtin.lineinfile:
     path: "{{ optical_config_dir }}/station.env"
     regexp: "^{{ item.key }}="
@@ -111,7 +111,7 @@
     mode: "0600"
   loop: "{{ {'SATNOGS_OPTICAL_URL': optical_network_url, 'SATNOGS_OPTICAL_DB': optical_db} | dict2items }}"
 
-- name: station.toml
+- name: Render station.toml
   ansible.builtin.include_role:
     name: gos.satnogs_optical.common
     tasks_from: station_toml
