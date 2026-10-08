@@ -1,0 +1,13 @@
+# {{ ansible_managed }}
+#
+# config-pull runs as the service user and cannot restart units itself; it
+# writes this file and root does the restart.
+[Unit]
+Description=SatNOGS Optical: restart acquisition when its configuration changes
+
+[Path]
+PathChanged={{ optical_run_dir }}/acquire-restart
+Unit=optical-acquire-restart.service
+
+[Install]
+WantedBy=multi-user.target

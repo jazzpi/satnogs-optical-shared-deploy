@@ -1,0 +1,112 @@
+---
+- name: Check the acquisition host's settings
+  ansible.builtin.assert:
+    that:
+      - optical_station_id | int > 0
+      - optical_ntp_servers is defined
+      - optical_ntp_servers | length > 0
+    fail_msg: >-
+      Set optical_station_id (claim the station on the processing host first;
+      optical-acquire refuses id 0) and optical_ntp_servers.
+    quiet: true
+
+- name: Packages
+  ansible.builtin.apt:
+    name:
+      - chrony
+      - git
+      - python3-venv
+      # From apt rather than pip: picamera2 needs the system's libcamera
+      # bindings, and the venv sees these through --system-site-packages.
+      - python3-picamera2
+      - python3-numpy
+      - python3-astropy
+      - python3-sgp4
+
+- name: chrony
+  ansible.builtin.template:
+    src: chrony.conf.j2
+    dest: /etc/chrony/chrony.conf
+    mode: "0644"
+  notify: Restart chrony
+
+- name: Virtualenv
+  ansible.builtin.command:
+    cmd: python3 -m venv --system-site-packages {{ optical_venv }}
+    creates: "{{ optical_venv }}/bin/python"
+
+- name: Read the installed client version
+  ansible.builtin.slurp:
+    src: "{{ optical_venv }}/.satnogs-optical-refs"
+  register: optical_installed_refs
+  failed_when: false
+
+# pip treats a different commit with the same version number as already
+# installed, so the pinned refs are recorded and compared here instead.
+- name: Install the client
+  vars:
+    wanted: "{{ optical_client_ref }} {{ optical_schema_ref }}"
+  when: (optical_installed_refs.content | default('') | b64decode | trim) != wanted
+  block:
+    - name: Install the client and the contract library
+      ansible.builtin.command:
+        argv:
+          - "{{ optical_venv }}/bin/pip"
+          - install
+          - --no-deps
+          - --force-reinstall
+          - "satnogs-optical-schema @ git+{{ optical_schema_repo }}@{{ optical_schema_ref }}#subdirectory=schemas"
+          - "satnogs-optical-client @ git+{{ optical_client_repo }}@{{ optical_client_ref }}"
+      changed_when: true
+      notify: Restart optical-acquire
+
+    - name: Record the installed refs
+      ansible.builtin.copy:
+        dest: "{{ optical_venv }}/.satnogs-optical-refs"
+        content: "{{ wanted }}\n"
+        mode: "0644"
+
+- name: station.toml
+  ansible.builtin.include_role:
+    name: gos.satnogs_optical.common
+    tasks_from: station_toml
+  vars:
+    optical_station_toml_doc: >-
+      {{ {
+        'station': {'id': optical_station_id | int, 'name': optical_station_name},
+        'site': {'lat': optical_site_lat | float, 'lon': optical_site_lon | float,
+                 'height_m': optical_site_height_m | float},
+        'store': {'db': optical_db},
+      } | combine(optical_station_toml_extra, optical_acquire_toml_extra, recursive=True) }}
+
+- name: Units
+  ansible.builtin.template:
+    src: "{{ item }}.j2"
+    dest: /etc/systemd/system/{{ item }}
+    mode: "0644"
+  loop:
+    - optical-acquire.service
+    - optical-sync-publish.service
+    - optical-config-pull.service
+    - optical-acquire-restart.path
+    - optical-acquire-restart.service
+  register: optical_units
+  notify:
+    - Restart optical-acquire
+    - Restart sync services
+
+- name: Enable and start
+  ansible.builtin.systemd_service:
+    name: "{{ item }}"
+    enabled: true
+    state: started
+    daemon_reload: "{{ optical_units.changed }}"
+  loop:
+    - chrony.service
+    - optical-acquire.service
+    - optical-sync-publish.service
+    - optical-config-pull.service
+    - optical-acquire-restart.path
+
+- name: Restart what changed
+  ansible.builtin.meta: flush_handlers

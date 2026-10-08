@@ -1,0 +1,16 @@
+---
+# NTP servers chrony uses. Required: optical-acquire will not capture until
+# chrony reports a validated clock.
+# optical_ntp_servers: [ntp.lan]
+
+optical_venv: /opt/satnogs-optical/venv
+
+optical_publish_interval: 10
+optical_config_pull_interval: 30
+
+# Extra station.toml content, as section -> key -> value. Merged over what
+# this role writes, and over optical_station_toml_extra (which both hosts
+# get). Most settings are better changed in the web UI, which reaches this
+# host through config-pull and outranks station.toml.
+optical_acquire_toml_extra: {}
+optical_station_toml_extra: {}

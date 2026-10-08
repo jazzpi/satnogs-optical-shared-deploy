@@ -1,0 +1,7 @@
+# {{ ansible_managed }}
+[Unit]
+Description=SatNOGS Optical: restart acquisition
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/systemctl restart optical-acquire.service

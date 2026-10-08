@@ -1,0 +1,40 @@
+---
+# Renders optical_station_toml_doc (section -> key -> value) to
+# station.toml. Notifies "optical station.toml changed".
+#
+# With optical_station_toml_guard_claim, refuses to overwrite a station id
+# that a claim wrote into the file: the claim edits station.toml in place,
+# and re-running Ansible with the old optical_station_id would silently
+# revert it.
+
+- name: Read the current station.toml
+  ansible.builtin.slurp:
+    src: "{{ optical_config_dir }}/station.toml"
+  register: optical_current_toml
+  failed_when: false
+  when: optical_station_toml_guard_claim | default(false)
+
+- name: Check a claim has not changed the station id
+  vars:
+    on_disk: >-
+      {{ (optical_current_toml.content | b64decode
+          | regex_search('(?m)^\s*id\s*=\s*(\d+)', '\1') or ['0']) | first | int }}
+  ansible.builtin.assert:
+    that: on_disk | int in [0, optical_station_id | int]
+    fail_msg: >-
+      {{ optical_config_dir }}/station.toml says this is station {{ on_disk }},
+      presumably from a claim. Set optical_station_id: {{ on_disk }} so this
+      run does not undo it.
+    quiet: true
+  when:
+    - optical_station_toml_guard_claim | default(false)
+    - optical_current_toml.content is defined
+
+- name: station.toml
+  ansible.builtin.template:
+    src: station.toml.j2
+    dest: "{{ optical_config_dir }}/station.toml"
+    owner: root
+    group: "{{ optical_user }}"
+    mode: "0660"
+  notify: optical station.toml changed

@@ -208,7 +208,7 @@ backup.yml                 import_playbook: gos.satnogs_optical.backup_secrets
 - [x] Collection skeleton (`galaxy.yml`, `meta/runtime.yml`, README, LICENSE)
 - [x] `common` role
 - [x] `nas_mount` role
-- [ ] `acquire` role
+- [x] `acquire` role
 - [ ] `processing` role
 - [ ] Playbooks (`site.yml`, `backup_secrets.yml`)
 - [ ] `examples/`

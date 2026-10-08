@@ -1,0 +1,21 @@
+# {{ ansible_managed }}
+[Unit]
+Description=SatNOGS Optical: take configuration edits from the processing host
+RequiresMountsFor={{ optical_exchange_dir }}
+
+[Service]
+User={{ optical_user }}
+Group={{ optical_user }}
+ExecStart={{ optical_venv }}/bin/python {{ optical_lib_dir }}/optical_sync.py config-pull --db {{ optical_db }} --source {{ optical_config_export }} --restart-flag {{ optical_run_dir }}/acquire-restart --interval {{ optical_config_pull_interval }}
+Restart=always
+RestartSec=10
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+ReadWritePaths={{ optical_state_dir }}
+ReadWritePaths={{ optical_run_dir }}
+SyslogIdentifier=optical-config-pull
+
+[Install]
+WantedBy=multi-user.target

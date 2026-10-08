@@ -1,0 +1,21 @@
+# {{ ansible_managed }}
+[Unit]
+Description=SatNOGS Optical: publish new stack rows to the NAS outbox
+RequiresMountsFor={{ optical_outbox_dir }}
+
+[Service]
+User={{ optical_user }}
+Group={{ optical_user }}
+ExecStart={{ optical_venv }}/bin/python {{ optical_lib_dir }}/optical_sync.py publish --db {{ optical_db }} --outbox {{ optical_outbox_dir }} --state {{ optical_state_dir }}/sync-publish.json --interval {{ optical_publish_interval }}
+Restart=always
+RestartSec=10
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+ReadWritePaths={{ optical_state_dir }}
+ReadWritePaths={{ optical_outbox_dir }}
+SyslogIdentifier=optical-sync-publish
+
+[Install]
+WantedBy=multi-user.target

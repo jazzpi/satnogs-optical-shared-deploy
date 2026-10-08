@@ -1,0 +1,12 @@
+# {{ ansible_managed }}
+{% macro table(prefix, doc) %}
+{% for key, value in doc.items() if value is not mapping %}
+{{ key }} = {{ value | to_json }}
+{% endfor %}
+{% for key, value in doc.items() if value is mapping %}
+
+[{{ prefix ~ key }}]
+{{ table(prefix ~ key ~ '.', value) -}}
+{% endfor %}
+{% endmacro %}
+{{ table('', optical_station_toml_doc) }}

@@ -1,0 +1,23 @@
+---
+- name: Restart chrony
+  ansible.builtin.systemd_service:
+    name: chrony.service
+    state: restarted
+
+- name: Restart optical-acquire
+  listen:
+    - optical station.toml changed
+  ansible.builtin.systemd_service:
+    name: optical-acquire.service
+    state: restarted
+    daemon_reload: true
+
+- name: Restart sync services
+  listen:
+    - optical sync script changed
+  ansible.builtin.systemd_service:
+    name: "{{ item }}"
+    state: restarted
+  loop:
+    - optical-sync-publish.service
+    - optical-config-pull.service
