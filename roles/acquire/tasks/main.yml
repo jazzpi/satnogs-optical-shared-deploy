@@ -20,6 +20,14 @@
       - python3-astropy
       - python3-sgp4
 
+# The unit grants video itself; membership is for running the client by hand
+# with sudo -u, e.g. `acquire discover`.
+- name: Let the service user use the camera
+  ansible.builtin.user:
+    name: "{{ optical_user }}"
+    groups: video
+    append: true
+
 - name: Configure chrony
   ansible.builtin.template:
     src: chrony.conf.j2
