@@ -18,3 +18,4 @@ build_ignore:
   - tests
   - PLAN.md
   - .gitignore
+  - .ansible
