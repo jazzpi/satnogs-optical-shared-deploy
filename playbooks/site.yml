@@ -5,10 +5,10 @@
   hosts: optical_processing
   become: true
   roles:
-    - gos.satnogs_optical.processing
+    - jazzpi.satnogs_optical_split.processing
 
 - name: Acquisition host
   hosts: optical_acquisition
   become: true
   roles:
-    - gos.satnogs_optical.acquire
+    - jazzpi.satnogs_optical_split.acquire

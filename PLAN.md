@@ -16,7 +16,7 @@ Two repos:
 
 | Repo | Contents | Public |
 |---|---|---|
-| `shared-deploy` (this one, Ansible collection `gos.satnogs_optical`) | roles, playbooks, sync script, docs, examples | yes |
+| `shared-deploy` (this one, Ansible collection `jazzpi.satnogs_optical_split`) | roles, playbooks, sync script, docs, examples | yes |
 | `optical-deploy-config` (private) | inventory, variables, vault-encrypted secrets, pinned collection version | no |
 
 ## Decisions
@@ -104,7 +104,7 @@ Details that matter:
   no `SATNOGS_OPTICAL_SOURCE`, so `acquire.source` from the web UI applies
   (default `auto`, which resolves to `libcamera` on the Pi).
 
-## Collection layout (`gos.satnogs_optical`)
+## Collection layout (`jazzpi.satnogs_optical_split`)
 
 ```
 shared-deploy/
@@ -183,13 +183,13 @@ Inventory groups: `optical_acquisition` (the Pi) and `optical_processing`
 
 ```
 ansible.cfg
-requirements.yml           gos.satnogs_optical from GitHub, pinned
+requirements.yml           jazzpi.satnogs_optical_split from GitHub, pinned
 inventory.yml              our hosts
 group_vars/all/main.yml    NAS export, NTP server, site, client commit, ports
 group_vars/all/vault.yml   encrypted
 secrets/                   vault-encrypted identity files (from backup_secrets.yml)
-site.yml                   import_playbook: gos.satnogs_optical.site
-backup.yml                 import_playbook: gos.satnogs_optical.backup_secrets
+site.yml                   import_playbook: jazzpi.satnogs_optical_split.site
+backup.yml                 import_playbook: jazzpi.satnogs_optical_split.backup_secrets
 ```
 
 ## Order of operations for a new setup

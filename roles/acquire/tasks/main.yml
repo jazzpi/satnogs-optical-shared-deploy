@@ -68,7 +68,7 @@
 
 - name: Render station.toml
   ansible.builtin.include_role:
-    name: gos.satnogs_optical.common
+    name: jazzpi.satnogs_optical_split.common
     tasks_from: station_toml
   vars:
     optical_station_toml_doc: >-

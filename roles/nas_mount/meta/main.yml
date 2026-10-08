@@ -10,4 +10,4 @@ galaxy_info:
     - name: Debian
       versions: [all]
 dependencies:
-  - role: gos.satnogs_optical.common
+  - role: jazzpi.satnogs_optical_split.common

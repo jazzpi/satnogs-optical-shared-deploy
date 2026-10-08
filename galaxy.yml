@@ -1,5 +1,5 @@
-namespace: gos
-name: satnogs_optical
+namespace: jazzpi
+name: satnogs_optical_split
 version: 0.1.0
 readme: README.md
 authors:

@@ -10,5 +10,5 @@ galaxy_info:
     - name: Debian
       versions: [all]
 dependencies:
-  - role: gos.satnogs_optical.common
-  - role: gos.satnogs_optical.nas_mount
+  - role: jazzpi.satnogs_optical_split.common
+  - role: jazzpi.satnogs_optical_split.nas_mount

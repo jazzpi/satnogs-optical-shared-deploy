@@ -1,4 +1,4 @@
-# gos.satnogs_optical
+# jazzpi.satnogs_optical_split
 
 An Ansible collection that deploys a [SatNOGS Optical](https://wiki.satnogs.org/SatNOGS_Optical)
 station split across two hosts that share a NAS:
