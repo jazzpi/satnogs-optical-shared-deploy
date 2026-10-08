@@ -228,10 +228,15 @@ backup.yml                 import_playbook: gos.satnogs_optical.backup_secrets
   (the end-to-end run used the synthetic source, which is not sky, so every
   stack was skipped for "no plate solution").
 - `Notify=true` / `WatchdogSec=` through Quadlet on the VM's Podman version.
-- `--sdnotify` and port/user handling for the web and setup containers.
+- Port publishing and the claim flow for the web and setup containers under
+  Podman (they ran only as plain processes in the Docker test).
 - Client pin: `v0.5.0` predates `frame_path`, so the default pin is a `main`
   commit (`d057e80`) until a newer release is tagged.
-- NFS `root_squash`: directory creation on the NAS may need to happen as the
-  service user rather than root.
+- The playbooks have only been linted, syntax-checked and template-rendered;
+  they have not run against a real Pi or VM yet.
+- Directories on the NAS are created as the service user (so `root_squash`
+  is fine), which needs the export's top directory writable by that uid.
+- `requirements.yml` in the private repo points at the GitHub repo's `main`,
+  which exists only once `shared-deploy` is pushed.
 - The web UI's focus-mode live view cannot work across hosts (it reads the
   Pi's tmpfs); stack previews from the FITS should.
