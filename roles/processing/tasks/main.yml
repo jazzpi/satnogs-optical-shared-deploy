@@ -1,0 +1,169 @@
+---
+- name: Podman
+  ansible.builtin.apt:
+    name: podman
+
+- name: Read the Podman version
+  ansible.builtin.command: podman version --format "{{ '{{' }}.Client.Version{{ '}}' }}"
+  register: optical_podman_version
+  changed_when: false
+
+- name: Check Podman supports Quadlet
+  ansible.builtin.assert:
+    that: optical_podman_version.stdout is version('4.4', '>=')
+    fail_msg: Podman {{ optical_podman_version.stdout }} has no Quadlet; 4.4 or newer is needed.
+    quiet: true
+
+# -- image ----------------------------------------------------------------------
+
+- name: Build directory
+  ansible.builtin.file:
+    path: "{{ optical_build_dir }}"
+    state: directory
+    mode: "0755"
+
+- name: Build context
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "{{ optical_build_dir }}/{{ item }}"
+    mode: "{{ '0755' if item == 'optical-agent-cycle' else '0644' }}"
+  loop: [Containerfile, optical-agent-cycle]
+  register: optical_build_context
+
+- name: Check whether the image exists
+  ansible.builtin.command: podman image exists {{ optical_image }}:{{ optical_image_tag }}
+  register: optical_image_exists
+  changed_when: false
+  failed_when: optical_image_exists.rc not in [0, 1]
+
+- name: Build the image
+  ansible.builtin.command:
+    argv:
+      - podman
+      - build
+      - --tag
+      - "{{ optical_image }}:{{ optical_image_tag }}"
+      - --build-arg
+      - CLIENT_REPO={{ optical_client_repo }}
+      - --build-arg
+      - CLIENT_REF={{ optical_client_ref }}
+      - --build-arg
+      - SCHEMA_REPO={{ optical_schema_repo }}
+      - --build-arg
+      - SCHEMA_REF={{ optical_schema_ref }}
+      - --build-arg
+      - CEDAR_VERSION={{ optical_cedar_version }}
+      - --build-arg
+      - HIP_CATALOG_URL={{ optical_hip_catalog_url }}
+      - --build-arg
+      - HIP_CATALOG_SHA256={{ optical_hip_catalog_sha256 }}
+      - --build-arg
+      - OPTICAL_UID={{ optical_uid }}
+      - --build-arg
+      - OPTICAL_GID={{ optical_gid }}
+      - "{{ optical_build_dir }}"
+  when: optical_image_exists.rc != 0 or optical_build_context.changed
+  changed_when: true
+  notify: Restart containers
+
+# -- secrets and configuration --------------------------------------------------
+
+- name: Identity directory
+  ansible.builtin.file:
+    path: "{{ optical_config_dir }}/identity"
+    state: directory
+    owner: "{{ optical_user }}"
+    group: "{{ optical_user }}"
+    mode: "0700"
+
+# Only when missing: after a claim the host's copy is the authoritative one.
+- name: Restore backed-up secrets
+  ansible.builtin.copy:
+    src: "{{ optical_secrets_dir }}/{{ inventory_hostname }}/{{ item }}"
+    dest: "{{ optical_config_dir }}/{{ item }}"
+    owner: "{{ optical_user }}"
+    group: "{{ optical_user }}"
+    mode: "0600"
+    force: false
+  loop: "{{ optical_secret_files }}"
+  when:
+    - optical_secrets_dir is defined
+    - (optical_secrets_dir ~ '/' ~ inventory_hostname ~ '/' ~ item) is file
+
+- name: Admin token for the web UI
+  ansible.builtin.copy:
+    dest: "{{ optical_config_dir }}/admin-token"
+    content: "{{ lookup('ansible.builtin.password', '/dev/null', chars=['hexdigits'], length=64) | lower }}\n"
+    owner: "{{ optical_user }}"
+    group: "{{ optical_user }}"
+    mode: "0600"
+    force: false
+
+# Line by line: the claim adds SATNOGS_OPTICAL_TOKEN to this file.
+- name: station.env
+  ansible.builtin.lineinfile:
+    path: "{{ optical_config_dir }}/station.env"
+    regexp: "^{{ item.key }}="
+    line: "{{ item.key }}={{ item.value }}"
+    create: true
+    owner: "{{ optical_user }}"
+    group: "{{ optical_user }}"
+    mode: "0600"
+  loop: "{{ {'SATNOGS_OPTICAL_URL': optical_network_url, 'SATNOGS_OPTICAL_DB': optical_db} | dict2items }}"
+
+- name: station.toml
+  ansible.builtin.include_role:
+    name: gos.satnogs_optical.common
+    tasks_from: station_toml
+  vars:
+    optical_station_toml_guard_claim: true
+    optical_station_toml_doc: >-
+      {{ {
+        'station': {'id': optical_station_id | int, 'name': optical_station_name},
+        'site': {'lat': optical_site_lat | float, 'lon': optical_site_lon | float,
+                 'height_m': optical_site_height_m | float},
+        'store': {'db': optical_db},
+        'pipeline': {'solver': 'cedar'},
+      } | combine(optical_station_toml_extra, optical_processing_toml_extra, recursive=True) }}
+
+# -- units ----------------------------------------------------------------------
+
+- name: Quadlet units
+  ansible.builtin.template:
+    src: "{{ item }}.j2"
+    dest: /etc/containers/systemd/{{ item }}
+    mode: "0644"
+  loop: "{{ optical_quadlets }}"
+  register: optical_quadlet_files
+  notify: Restart containers
+
+- name: Host units
+  ansible.builtin.template:
+    src: "{{ item }}.j2"
+    dest: /etc/systemd/system/{{ item }}
+    mode: "0644"
+  loop: [optical-retention.timer, optical-web.path]
+  register: optical_host_units
+
+- name: Reload systemd
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+  when: optical_quadlet_files.changed or optical_host_units.changed
+
+# Units generated from Quadlet files cannot be enabled; their [Install]
+# section takes effect at generation. Starting them is enough.
+- name: Start containers
+  ansible.builtin.systemd_service:
+    name: "{{ item }}"
+    state: started
+  loop: "{{ optical_long_running }}"
+
+- name: Enable timer and path units
+  ansible.builtin.systemd_service:
+    name: "{{ item }}"
+    enabled: true
+    state: started
+  loop: [optical-retention.timer, optical-web.path]
+
+- name: Restart what changed
+  ansible.builtin.meta: flush_handlers

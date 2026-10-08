@@ -1,0 +1,14 @@
+---
+galaxy_info:
+  author: Jasper
+  description: SatNOGS Optical processing host (Podman/Quadlet containers)
+  license: AGPL-3.0-or-later
+  min_ansible_version: "2.15"
+  platforms:
+    - name: Ubuntu
+      versions: [all]
+    - name: Debian
+      versions: [all]
+dependencies:
+  - role: gos.satnogs_optical.common
+  - role: gos.satnogs_optical.nas_mount

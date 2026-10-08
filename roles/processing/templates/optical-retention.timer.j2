@@ -1,0 +1,13 @@
+# {{ ansible_managed }}
+[Unit]
+Description=Sweep the SatNOGS Optical raw buffer every hour
+
+[Timer]
+OnBootSec=5min
+OnUnitActiveSec=1h
+AccuracySec=1min
+Persistent=true
+Unit=optical-retention.service
+
+[Install]
+WantedBy=timers.target

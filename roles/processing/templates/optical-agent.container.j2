@@ -1,0 +1,19 @@
+# {{ ansible_managed }}
+[Unit]
+Description=SatNOGS Optical: network agent (elements, telemetry, tasks, config, upload)
+After=network-online.target
+Wants=network-online.target
+
+[Container]
+{% include '_container.j2' %}
+Environment=OPTICAL_CONFIG_DIR={{ optical_config_dir }}
+Environment=OPTICAL_DB={{ optical_db }}
+Environment=OPTICAL_AGENT_INTERVAL={{ optical_agent_interval }}
+Exec=optical-agent-cycle
+
+[Service]
+Restart=always
+RestartSec=60
+
+[Install]
+WantedBy=multi-user.target

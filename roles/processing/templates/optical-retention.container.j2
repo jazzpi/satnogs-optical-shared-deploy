@@ -1,0 +1,11 @@
+# {{ ansible_managed }}
+[Unit]
+Description=SatNOGS Optical: sweep the raw buffer on the NAS
+RequiresMountsFor={{ optical_nas_mountpoint }}
+
+[Container]
+{% include '_container.j2' %}
+Exec=python -m satnogs_optical_client.store retention --db {{ optical_db }} --raw-dir {{ optical_raw_dir }} --json
+
+[Service]
+Type=oneshot

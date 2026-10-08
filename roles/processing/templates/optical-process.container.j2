@@ -1,0 +1,23 @@
+# {{ ansible_managed }}
+[Unit]
+Description=SatNOGS Optical: processing (detect, solve, link, identify)
+RequiresMountsFor={{ optical_nas_mountpoint }}
+StartLimitIntervalSec=600
+StartLimitBurst=10
+
+[Container]
+{% include '_container.j2' %}
+{% if optical_container_notify %}
+Notify=true
+{% endif %}
+Exec=python -m satnogs_optical_client.pipeline process --config {{ optical_config_dir }}/station.toml --db {{ optical_db }}
+
+[Service]
+Restart=always
+RestartSec=20
+{% if optical_container_notify %}
+WatchdogSec=600
+{% endif %}
+
+[Install]
+WantedBy=multi-user.target

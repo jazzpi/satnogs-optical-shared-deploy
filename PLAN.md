@@ -209,7 +209,10 @@ backup.yml                 import_playbook: gos.satnogs_optical.backup_secrets
 - [x] `common` role
 - [x] `nas_mount` role
 - [x] `acquire` role
-- [ ] `processing` role
+- [x] `processing` role
+- [x] Processing image builds (Docker) and runs end to end: synthetic acquire ->
+      publish -> ingest -> `optical-process` consumed the ingested stacks;
+      cedar solver constructed, agent selftest OK
 - [ ] Playbooks (`site.yml`, `backup_secrets.yml`)
 - [ ] `examples/`
 - [x] `git init` + remote + identity for `shared-deploy`
@@ -220,8 +223,9 @@ backup.yml                 import_playbook: gos.satnogs_optical.backup_secrets
 
 - The real `libcamera` driver against the HQ camera on Ubuntu (expected to
   work: same `picamera2` path as the stvid fork).
-- Whether `optical-process` treats ingested rows exactly like locally
-  written ones.
+- Whether `optical-process` solves and measures ingested **sky** stacks
+  (the end-to-end run used the synthetic source, which is not sky, so every
+  stack was skipped for "no plate solution").
 - `Notify=true` / `WatchdogSec=` through Quadlet on the VM's Podman version.
 - `--sdnotify` and port/user handling for the web and setup containers.
 - Client pin: `v0.5.0` predates `frame_path`, so the default pin is a `main`

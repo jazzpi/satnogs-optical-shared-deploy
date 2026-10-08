@@ -1,0 +1,34 @@
+FROM python:3.11-slim-bookworm
+
+ARG CLIENT_REPO
+ARG CLIENT_REF
+ARG SCHEMA_REPO
+ARG SCHEMA_REF
+ARG CEDAR_VERSION
+ARG HIP_CATALOG_URL
+ARG HIP_CATALOG_SHA256
+ARG OPTICAL_UID
+ARG OPTICAL_GID
+
+RUN apt-get update -qq \
+ && apt-get install -y -qq --no-install-recommends git curl ca-certificates \
+ && rm -rf /var/lib/apt/lists/*
+
+RUN pip install --no-cache-dir \
+      "satnogs-optical-schema @ git+${SCHEMA_REPO}@${SCHEMA_REF}#subdirectory=schemas" \
+ && pip install --no-cache-dir "numpy<2" Pillow \
+      "satnogs-optical-client[pipeline,web] @ git+${CLIENT_REPO}@${CLIENT_REF}" \
+ && pip install --no-cache-dir --no-deps "cedar-solve==${CEDAR_VERSION}"
+
+RUN mkdir -p /usr/share/satnogs-optical/catalogs \
+ && curl -fsSL "${HIP_CATALOG_URL}" -o /usr/share/satnogs-optical/catalogs/hip_main.dat \
+ && echo "${HIP_CATALOG_SHA256}  /usr/share/satnogs-optical/catalogs/hip_main.dat" | sha256sum -c -
+
+RUN groupadd -g "${OPTICAL_GID}" satnogs-optical \
+ && useradd -u "${OPTICAL_UID}" -g "${OPTICAL_GID}" -M -d /var/lib/satnogs-optical \
+      -s /usr/sbin/nologin satnogs-optical
+
+COPY optical-agent-cycle /usr/local/bin/optical-agent-cycle
+
+USER satnogs-optical
+WORKDIR /var/lib/satnogs-optical

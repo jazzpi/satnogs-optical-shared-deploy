@@ -1,0 +1,10 @@
+# {{ ansible_managed }}
+[Unit]
+Description=SatNOGS Optical: start the station viewer once the station is claimed
+
+[Path]
+PathExists={{ optical_config_dir }}/identity/claimed.json
+Unit=optical-web.service
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,28 @@
+---
+optical_quadlets:
+  - optical-process.container
+  - optical-agent.container
+  - optical-web.container
+  - optical-setup.container
+  - optical-sync-ingest.container
+  - optical-config-export.container
+  - optical-retention.container
+
+# Started (and restarted) by this role. Only one of optical-web and
+# optical-setup actually runs: an unmet ConditionPathExists= skips the other
+# without an error.
+optical_long_running:
+  - optical-process.service
+  - optical-agent.service
+  - optical-sync-ingest.service
+  - optical-config-export.service
+  - optical-setup.service
+  - optical-web.service
+
+optical_secret_files:
+  - identity/station-key.ed25519
+  - identity/station-key.pub
+  - identity/identity.json
+  - identity/claimed.json
+  - station.env
+  - admin-token

@@ -1,0 +1,16 @@
+# {{ ansible_managed }}
+[Unit]
+Description=SatNOGS Optical: ingest stack rows from the NAS outbox
+RequiresMountsFor={{ optical_nas_mountpoint }}
+
+[Container]
+{% include '_container.j2' %}
+Exec=python {{ optical_lib_dir }}/optical_sync.py ingest --db {{ optical_db }} --outbox {{ optical_outbox_dir }} --interval {{ optical_ingest_interval }}{% for pair in optical_ingest_path_map %} --path-map {{ pair }}{% endfor %}
+
+
+[Service]
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

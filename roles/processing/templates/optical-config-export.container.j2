@@ -1,0 +1,15 @@
+# {{ ansible_managed }}
+[Unit]
+Description=SatNOGS Optical: export configuration for the acquisition host
+RequiresMountsFor={{ optical_nas_mountpoint }}
+
+[Container]
+{% include '_container.j2' %}
+Exec=python {{ optical_lib_dir }}/optical_sync.py config-export --db {{ optical_db }} --out {{ optical_config_export }} --interval {{ optical_config_export_interval }}
+
+[Service]
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

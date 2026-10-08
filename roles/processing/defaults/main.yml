@@ -1,0 +1,39 @@
+---
+optical_image: localhost/satnogs-optical
+optical_image_tag: "{{ optical_client_ref[:12] }}"
+optical_build_dir: /opt/satnogs-optical/build
+
+# cedar-solve is the plate solver. It is installed without its dependencies
+# because it pins a 2021 numpy/Pillow stack it does not actually need.
+optical_cedar_version: 0.5.1
+
+# The Hipparcos main catalogue, for generating a cedar-solve database that
+# matches the station's field of view. Pinned by checksum because the
+# generated database is cached by field only.
+optical_hip_catalog_url: https://cdsarc.cds.unistra.fr/ftp/cats/I/239/hip_main.dat
+optical_hip_catalog_sha256: 58ceabb104d647160d9437ce6e513a02a036bb4ad9f8879a5a22fd52943616e0
+
+# Host port for the web UI and, before the station is claimed, the claim page.
+optical_web_port: 8080
+
+optical_ingest_interval: 10
+optical_config_export_interval: 10
+optical_agent_interval: 60
+
+# FROM=TO path prefixes to rewrite in ingested rows. Only needed when the NAS
+# is mounted at different paths on the two hosts.
+optical_ingest_path_map: []
+
+# Pass systemd's notify socket into the containers so READY and the watchdog
+# work as they do on a station. Turn off if a container never becomes ready.
+optical_container_notify: true
+
+# A directory on the machine running Ansible holding this host's secrets as
+# written by the backup_secrets playbook (<dir>/<inventory_hostname>/...).
+# Files found there are restored when missing on the host.
+# optical_secrets_dir: "{{ playbook_dir }}/secrets"
+
+# Extra station.toml content, as section -> key -> value. Retention, for
+# example: {retention: {raw_hours: 72, max_used_fraction: 0.6}}.
+optical_processing_toml_extra: {}
+optical_station_toml_extra: {}

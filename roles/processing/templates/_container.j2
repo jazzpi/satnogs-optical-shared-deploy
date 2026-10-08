@@ -1,0 +1,11 @@
+{# Shared [Container] settings: same uid as on the Pi, every path at the
+   same location as on the host. #}
+Image={{ optical_image }}:{{ optical_image_tag }}
+User={{ optical_uid }}:{{ optical_gid }}
+Volume={{ optical_config_dir }}:{{ optical_config_dir }}
+Volume={{ optical_state_dir }}:{{ optical_state_dir }}
+Volume={{ optical_run_dir }}:{{ optical_run_dir }}
+Volume={{ optical_nas_mountpoint }}:{{ optical_nas_mountpoint }}
+Volume={{ optical_lib_dir }}:{{ optical_lib_dir }}:ro
+Environment=SATNOGS_OPTICAL_CONFIG_DIR={{ optical_config_dir }}
+LogDriver=journald
