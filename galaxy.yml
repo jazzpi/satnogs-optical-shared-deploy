@@ -1,0 +1,20 @@
+namespace: gos
+name: satnogs_optical
+version: 0.1.0
+readme: README.md
+authors:
+  - Jasper <jasper@mezzo.de>
+description: >-
+  Deploy a SatNOGS Optical station split across an acquisition host (Raspberry
+  Pi with the camera) and a processing host (containers on a VM), sharing a NAS.
+license:
+  - AGPL-3.0-or-later
+tags: [satnogs, astronomy, raspberrypi, podman]
+dependencies:
+  ansible.posix: ">=1.5.0"
+repository: https://github.com/jazzpi/satnogs-optical-shared-deploy
+issues: https://github.com/jazzpi/satnogs-optical-shared-deploy/issues
+build_ignore:
+  - tests
+  - PLAN.md
+  - .gitignore

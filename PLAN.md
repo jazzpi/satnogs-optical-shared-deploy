@@ -205,9 +205,16 @@ backup.yml                 import_playbook: gos.satnogs_optical.backup_secrets
 - [x] `optical-acquire` verified to run standalone (synthetic source: no gate,
       agent, web or process running; creates its own store)
 - [x] `optical_sync.py` and its tests (`PYTHONPATH=../client pytest tests`)
-- [ ] Collection skeleton, roles, playbooks
-- [ ] Private repo skeleton
-- [ ] `git init` + remotes + identities for both repos
+- [x] Collection skeleton (`galaxy.yml`, `meta/runtime.yml`, README, LICENSE)
+- [ ] `common` role
+- [ ] `nas_mount` role
+- [ ] `acquire` role
+- [ ] `processing` role
+- [ ] Playbooks (`site.yml`, `backup_secrets.yml`)
+- [ ] `examples/`
+- [x] `git init` + remote + identity for `shared-deploy`
+- [ ] Private repo skeleton, `git init` + remote + identity
+- [ ] Lint (`ansible-lint`, `--syntax-check`)
 
 ## Unverified / open
 
